@@ -4,6 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from .models import Question_set, Question, Category
 
 from api.serilizers import UserLoginSerializer, UserSerializer, UserRegisterSerializer
 from api.validations import validate_email, validate_password
@@ -59,7 +60,41 @@ class UserView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
-    ##
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response({'user': serializer.data}, status=status.HTTP_200_OK)
+
+class GetUserDetails(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        user = request.user
+        return Response({"email": user.email, "phone": user.phone, "name": user.username, "surname": user.surname}, status=status.HTTP_200_OK)
+
+
+class GetQuizes(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request):
+        quizes = Question_set.objects.all()
+        quiz_set = []
+        for i in quizes:
+            quiz_set.append({"title":i.title, "id":i.id, "author":i.user.username+" "+i.user.surname})
+        return Response({"quizes":quiz_set}, status=status.HTTP_200_OK)
+
+
+class GetCategories(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def get(self, request):
+        question_set = Question_set.objects.get(id=int(request.GET['quiz_id']))
+        data = []
+        for i in question_set.categories.all():
+            categories = []
+            for x in i.questions.all():
+                categories.append({"title":x.text, "points":x.points})
+            data.append({"title":i.title, "questions":categories})
+        return Response({"title":question_set.title, "categories":data}, status=status.HTTP_200_OK)

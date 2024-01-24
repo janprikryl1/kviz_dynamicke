@@ -65,7 +65,7 @@ function Header(props) {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
-            <Nav.Link as={Link} to="new_drawing">
+            <Nav.Link as={Link} to="new_quiz">
             Nový kvíz
             </Nav.Link>
             <Nav.Link as={Link} to="contact">

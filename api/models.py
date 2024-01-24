@@ -4,18 +4,6 @@ from django.db import models
 
 
 # Create your models here.
-class Question(models.Model):
-    date_time_created = models.DateTimeField(auto_now=True)
-    title = models.CharField(max_length=25)
-    text = models.TextField()
-    correct_solution = models.TextField()
-
-
-class Question_set(models.Model):
-    title = models.TextField()
-    date_time_created = models.DateTimeField(auto_now=True)
-    questions = models.ManyToManyField(Question, blank=True)
-
 
 class AppUserManager(BaseUserManager):
     def create_user(self, email, password=None):
@@ -46,7 +34,6 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
     phone = models.CharField(max_length=15, blank=True)
     username = models.CharField(max_length=50)
     surname = models.CharField(max_length=50, blank=True)
-    question_sets = models.ManyToManyField(Question_set, blank=True)
     is_staff = models.BooleanField(default=False)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -57,3 +44,21 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
 
     def name(self):
         return f'{self.username} {self.surname}'
+
+
+
+
+class Question(models.Model):
+    date_time_created = models.DateTimeField(auto_now=True)
+    points = models.IntegerField(blank=True)
+    text = models.TextField(blank=True)
+
+class Category(models.Model):
+    title = models.CharField(max_length=35)
+    questions = models.ManyToManyField(Question, blank=True)
+
+class Question_set(models.Model):
+    title = models.TextField()
+    date_time_created = models.DateTimeField(auto_now=True)
+    categories = models.ManyToManyField(Category, blank=True)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='question_sets')

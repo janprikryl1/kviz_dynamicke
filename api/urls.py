@@ -6,5 +6,7 @@ urlpatterns = [
     path('login', UserLogin.as_view(), name='login'),
     path('logout', UserLogout.as_view(), name='logout'),
     path('user', UserView.as_view(), name='user'),
-
+    path('get_user_deails', GetUserDetails.as_view(), name='get_user_details'),
+    path('get_quizes', GetQuizes.as_view(), name='get_quizes'),
+    path('get_categories', GetCategories.as_view(), name='get_categories'),
 ]
