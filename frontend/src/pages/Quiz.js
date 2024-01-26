@@ -50,7 +50,7 @@ function Quiz() {
                     <div className="row">
                         {category.questions.map((question, key) => (
                             <div key={key} className="col-sm-1">
-                                <Question price={question.points} variant={categoryKey%2==0?"success":"danger"} question={question.title} points1={points1} setPoints1={set1Points} points2={points2} setPoints2={set2Points} points3={points3} setPoints3={set3Points} points4={points4} setPoints4={set4Points}/>
+                                <Question price={question.points} variant={categoryKey==0?"success":categoryKey==1?"danger":categoryKey==2?"warning":"primary"} question={question.title} points1={points1} setPoints1={set1Points} points2={points2} setPoints2={set2Points} points3={points3} setPoints3={set3Points} points4={points4} setPoints4={set4Points}/>
                             </div>
                         ))}
                     </div>
