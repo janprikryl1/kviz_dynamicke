@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react";
 import { createRoot } from 'react-dom/client';
-
 import { Routes, Route, BrowserRouter } from 'react-router-dom';
-
 import Home from './pages/Home';
 import NoPage from './pages/NoPage';
 import Footer from './components/Footer';

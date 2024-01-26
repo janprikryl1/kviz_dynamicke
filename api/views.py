@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Question_set, Question, Category
+from .models import Question_set, Question, Category, AppUser
 
 from api.serilizers import UserLoginSerializer, UserSerializer, UserRegisterSerializer
 from api.validations import validate_email, validate_password
@@ -98,3 +98,59 @@ class GetCategories(APIView):
                 categories.append({"title":x.text, "points":x.points})
             data.append({"title":i.title, "questions":categories})
         return Response({"title":question_set.title, "categories":data}, status=status.HTTP_200_OK)
+
+
+class CreateQuestionSet(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def post(self, request, format=None):
+        title = request.data.get('title')
+        categories_data = request.data.get('categories', [])
+        questions_data = request.data.get('questions', [])
+
+        print(categories_data, questions_data)
+
+        # Vytvoření kategorií
+        categories = []
+
+        '''for question_data in questions_data:
+            question = Question(
+                points=question_data.get('points'),
+                text=question_data.get('text')
+            )
+            question.save()
+            questions.append(question)'''
+
+        for category_data in categories_data:
+            category = Category(
+                title=category_data
+            )
+            category.save()
+            #category.questions.add(questions)
+            for question_data in questions_data:
+                if question_data['category'] == category_data:
+                    question = Question(
+                        points=question_data['points'],
+                        text=question_data['text']
+                    )
+                    question.save()
+                    category.questions.add(question)
+            category.save()
+            categories.append(category)
+
+        # Vytvoření Question_set
+        serializer = UserSerializer(request.user)
+        print(serializer.data)
+
+
+        question_set = Question_set(
+            title=title,
+            user=request.user  # Adjust as per your user model
+        )
+        question_set.save()
+        for i in categories:
+            question_set.categories.add(i)
+        question_set.save()
+
+        return Response(status=status.HTTP_201_CREATED)

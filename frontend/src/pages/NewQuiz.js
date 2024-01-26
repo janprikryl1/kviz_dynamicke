@@ -1,23 +1,88 @@
 import React, { useState } from "react";
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import getCookie from "../functions/getCookie";
+import {toast} from "react-toastify";
 
 function NewQuiz() {
-    const [title, setTitle] = useState(""); // Stav pro název kvízu
-    const [categories, setCategories] = useState([]); // Stav pro ukládání kategorií
-    const [categoryTitle, setCategoryTitle] = useState(""); // Stav pro název nové kategorie
+    const [title, setTitle] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [categoryTitle, setCategoryTitle] = useState("");
+    const [questions, setQuestions] = useState([]);
+    const [questionText, setQuestionText] = useState("");
+    const [questionPoints, setQuestionPoints] = useState(0);
+    const [selectedCategory, setSelectedCategory] = useState("");
 
     function createNewCategory() {
         if (categoryTitle.trim() !== "") {
-            setCategories([...categories, categoryTitle]); // Přidání nové kategorie do stavu
-            setCategoryTitle(""); // Vyčištění stavu pro název nové kategorie
+            setCategories([...categories, categoryTitle]);
+            setCategoryTitle("");
+        }
+    }
+
+    function addNewQuestion() {
+        if (questionText.trim() !== "" && selectedCategory !== "") {
+            const newQuestion = {
+                text: questionText,
+                points: questionPoints,
+                category: selectedCategory,
+            };
+            setQuestions([...questions, newQuestion]);
+            setQuestionText("");
+            setQuestionPoints(0);
+            setSelectedCategory("");
         }
     }
 
     function handleSubmit(event) {
         event.preventDefault();
-        // Zde můžete zpracovat odeslání formuláře, například odeslat data na server
+
+        // Vytvoření objektu s daty pro odeslání na server
+        const dataToSend = {
+            title: title,
+            categories: categories,
+            questions: questions,
+        };
+
+        // Odešlete data na server pomocí fetch
+        fetch('/api/create_question_set', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(dataToSend),
+        })
+        .then(response => {
+            if (!response.ok) {
+                showErrorMessage();
+            }
+                showSuccessMessage();
+                setTitle("");
+                setCategories([]);
+                setCategoryTitle("");
+                setQuestions([]);
+                setQuestionText("");
+                setQuestionPoints(0);
+                setSelectedCategory("");
+        })
+        .catch(error => {
+            showErrorMessage();
+        });
     }
+
+    const showErrorMessage = () => {
+        toast.error('Chyba!', {
+            position: toast.POSITION.TOP_RIGHT
+        });
+    };
+
+    const showSuccessMessage = () => {
+        toast.success('Vytvořeno!', {
+            position: toast.POSITION.TOP_RIGHT
+        });
+    };
 
     return (
         <div className="container">
@@ -39,7 +104,7 @@ function NewQuiz() {
 
                 <h2>Kategorie</h2>
                 {categories.map((category, index) => (
-                    <Button variant="success" key={index}>{category}</Button>
+                    <p key={index}>{category}</p>
                 ))}
                 <Form.Group className="mb-3" controlId="categoryTitle">
                     <Form.Label>Název</Form.Label>
@@ -55,7 +120,50 @@ function NewQuiz() {
                 </Button>
                 <br /><br />
 
-
+                {/* Formulář pro otázky s přidáním bodů */}
+                <h2>Otázky</h2>
+                {questions.map((question, index) => (
+                    <div key={index}>
+                        <p>{`Otázka: ${question.text}, Kategorie: ${question.category}, Body: ${question.points}`}</p>
+                    </div>
+                ))}
+                <Form.Group className="mb-3" controlId="questionText">
+                    <Form.Label>Text otázky</Form.Label>
+                    <Form.Control
+                        type="text"
+                        placeholder="Text otázky"
+                        value={questionText}
+                        onChange={(e) => setQuestionText(e.target.value)}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="questionPoints">
+                    <Form.Label>Bodová hodnota otázky</Form.Label>
+                    <Form.Control
+                        type="number"
+                        placeholder="Bodová hodnota"
+                        value={questionPoints}
+                        onChange={(e) => setQuestionPoints(parseInt(e.target.value))}
+                    />
+                </Form.Group>
+                <Form.Group className="mb-3" controlId="selectedCategory">
+                    <Form.Label>Vybraná kategorie</Form.Label>
+                    <Form.Control
+                        as="select"
+                        value={selectedCategory}
+                        onChange={(e) => setSelectedCategory(e.target.value)}
+                    >
+                        <option value="">Vyberte kategorii</option>
+                        {categories.map((category, index) => (
+                            <option key={index} value={category}>
+                                {category}
+                            </option>
+                        ))}
+                    </Form.Control>
+                </Form.Group>
+                <Button variant="primary" onClick={addNewQuestion}>
+                    Přidat otázku
+                </Button>
+                <br /><br />
 
                 <Button variant="primary" type="submit">
                     Vytvořit

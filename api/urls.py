@@ -9,4 +9,5 @@ urlpatterns = [
     path('get_user_deails', GetUserDetails.as_view(), name='get_user_details'),
     path('get_quizes', GetQuizes.as_view(), name='get_quizes'),
     path('get_categories', GetCategories.as_view(), name='get_categories'),
+    path('create_question_set', CreateQuestionSet.as_view(), name='create_question_set')
 ]
