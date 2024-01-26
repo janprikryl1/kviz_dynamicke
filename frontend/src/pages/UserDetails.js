@@ -3,6 +3,7 @@ import Button from "react-bootstrap/Button";
 import React, {useEffect, useState} from "react";
 import getCookie from "../functions/getCookie";
 import {Link} from "react-router-dom";
+import MyQuestionSets from "../components/MyQuestionSets";
 
 function UserDetails(props) {
     const [email, setEmail] = useState("");
@@ -51,6 +52,8 @@ function UserDetails(props) {
                     ))}
                 </div>
                 ) : null}
+
+            <MyQuestionSets />
         </div>
     )
 }

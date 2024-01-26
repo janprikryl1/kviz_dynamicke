@@ -64,13 +64,15 @@ class UserView(APIView):
         serializer = UserSerializer(request.user)
         return Response({'user': serializer.data}, status=status.HTTP_200_OK)
 
+
 class GetUserDetails(APIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (SessionAuthentication,)
 
     def get(self, request):
         user = request.user
-        return Response({"email": user.email, "phone": user.phone, "name": user.username, "surname": user.surname}, status=status.HTTP_200_OK)
+        return Response({"email": user.email, "phone": user.phone, "name": user.username, "surname": user.surname},
+                        status=status.HTTP_200_OK)
 
 
 class GetQuizes(APIView):
@@ -81,8 +83,8 @@ class GetQuizes(APIView):
         quizes = Question_set.objects.all()
         quiz_set = []
         for i in quizes:
-            quiz_set.append({"title":i.title, "id":i.id, "author":i.user.username+" "+i.user.surname})
-        return Response({"quizes":quiz_set}, status=status.HTTP_200_OK)
+            quiz_set.append({"title": i.title, "id": i.id, "author": i.user.username + " " + i.user.surname})
+        return Response({"quizes": quiz_set}, status=status.HTTP_200_OK)
 
 
 class GetCategories(APIView):
@@ -95,9 +97,21 @@ class GetCategories(APIView):
         for i in question_set.categories.all():
             categories = []
             for x in i.questions.all():
-                categories.append({"title":x.text, "points":x.points})
-            data.append({"title":i.title, "questions":categories})
-        return Response({"title":question_set.title, "categories":data}, status=status.HTTP_200_OK)
+                categories.append({"title": x.text, "points": x.points})
+            data.append({"title": i.title, "questions": categories})
+        return Response({"title": question_set.title, "categories": data}, status=status.HTTP_200_OK)
+
+
+class GetMyQuizes(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (SessionAuthentication,)
+
+    def get(self, request):
+        quizes = Question_set.objects.filter(user=request.user)
+        quiz_set = []
+        for i in quizes:
+            quiz_set.append({"title": i.title, "id": i.id, "author": i.user.username + " " + i.user.surname})
+        return Response({"quizes": quiz_set}, status=status.HTTP_200_OK)
 
 
 class CreateQuestionSet(APIView):
@@ -109,25 +123,15 @@ class CreateQuestionSet(APIView):
         categories_data = request.data.get('categories', [])
         questions_data = request.data.get('questions', [])
 
-        print(categories_data, questions_data)
-
         # Vytvoření kategorií
         categories = []
-
-        '''for question_data in questions_data:
-            question = Question(
-                points=question_data.get('points'),
-                text=question_data.get('text')
-            )
-            question.save()
-            questions.append(question)'''
 
         for category_data in categories_data:
             category = Category(
                 title=category_data
             )
             category.save()
-            #category.questions.add(questions)
+            # category.questions.add(questions)
             for question_data in questions_data:
                 if question_data['category'] == category_data:
                     question = Question(
@@ -140,10 +144,6 @@ class CreateQuestionSet(APIView):
             categories.append(category)
 
         # Vytvoření Question_set
-        serializer = UserSerializer(request.user)
-        print(serializer.data)
-
-
         question_set = Question_set(
             title=title,
             user=request.user  # Adjust as per your user model

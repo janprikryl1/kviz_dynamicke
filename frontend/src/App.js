@@ -48,7 +48,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home user={currentUser}/>} />
             <Route path="/quiz/:quizId" element={<Quiz />} />
-            <Route path="/new_quiz" element={<NewQuiz />} />
+            <Route path="/new_quiz" element={<NewQuiz user={currentUser} />} />
             <Route path="/profile" element={<UserDetails user={currentUser}/>} />
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NoPage />} />

@@ -65,9 +65,12 @@ function Header(props) {
             style={{ maxHeight: '100px' }}
             navbarScroll
           >
+            {props.currentUser ?
+                (
             <Nav.Link as={Link} to="new_quiz">
             Nový kvíz
             </Nav.Link>
+                ): null }
             <Nav.Link as={Link} to="contact">
                 Kontakt
             </Nav.Link>

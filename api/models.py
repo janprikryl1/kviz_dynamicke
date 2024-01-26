@@ -46,16 +46,16 @@ class AppUser(AbstractBaseUser, PermissionsMixin):
         return f'{self.username} {self.surname}'
 
 
-
-
 class Question(models.Model):
     date_time_created = models.DateTimeField(auto_now=True)
     points = models.IntegerField(blank=True)
     text = models.TextField(blank=True)
 
+
 class Category(models.Model):
     title = models.CharField(max_length=35)
     questions = models.ManyToManyField(Question, blank=True)
+
 
 class Question_set(models.Model):
     title = models.TextField()
