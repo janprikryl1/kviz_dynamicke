@@ -59,6 +59,10 @@ function Home(props) {
                     ))}
 
             </CardGroup>
+
+            {!props.user ? (
+                <p>Přihlaste se, abyste mohli přidávat kvízy</p>
+            ):null}
         </div>
     )
 }
